@@ -1,11 +1,11 @@
-// Enhanced visualization with solid colors and consistent ordering
+// Enhanced visualization with solid colors and consistent ordering AND roll selection
 let orderColorMap = new Map();
+let selectedOrders = new Set(); // Track selected customer orders
 
 function displayPatterns(patterns, machineSettings) {
     console.log('🎨 Displaying patterns with solid colors:', patterns);
 
     const container = document.getElementById('patternsContainer');
-
     if (!container) {
         console.error('Patterns container not found!');
         return;
@@ -17,10 +17,10 @@ function displayPatterns(patterns, machineSettings) {
         return;
     }
 
-    // Reset color map for new optimization
+    // Reset color map for new optimization but keep selection state
     orderColorMap.clear();
-
     container.innerHTML = '';
+
     let totalWaste = 0;
     let totalUsed = 0;
     let totalReels = 0;
@@ -36,8 +36,10 @@ function displayPatterns(patterns, machineSettings) {
 
     // Add color legend
     addColorLegend();
-
     updateSummary(totalReels, totalWaste, totalUsed);
+
+    // Initialize click events for all sections
+    initializeSectionClickEvents();
 }
 
 function createEnhancedPatternElement(patternObj, index, machineSettings) {
@@ -59,15 +61,17 @@ function createEnhancedPatternElement(patternObj, index, machineSettings) {
         </div>
     `;
 
-    // Create visual sections with solid colors
+    // Create visual sections with solid colors and customer order data
     const sectionsHTML = patternObj.pattern.map((width, sectionIndex) => {
         const percentage = (width / jumboWidth) * 100;
         const colorClass = getColorForWidth(width);
+        const isSelected = selectedOrders.has(width) ? 'selected' : '';
 
         return `
-            <div class="section-visual ${colorClass}" 
+            <div class="section-visual ${colorClass} ${isSelected}"
+                 data-customer-order="${width}"
                  style="width: ${percentage}%;"
-                 title="Order: ${width}mm">
+                 title="Order: ${width}mm - Click to select all ${width}mm rolls">
                 ${width}
             </div>
         `;
@@ -76,7 +80,7 @@ function createEnhancedPatternElement(patternObj, index, machineSettings) {
     // Waste section
     const wastePercentage = (patternObj.waste / jumboWidth) * 100;
     const wasteHTML = patternObj.waste > 0 ? `
-        <div class="waste-visual" style="width: ${wastePercentage}%;" 
+        <div class="waste-visual" style="width: ${wastePercentage}%;"
              title="Waste: ${patternObj.waste}mm">
             ${patternObj.waste}
         </div>
@@ -90,7 +94,7 @@ function createEnhancedPatternElement(patternObj, index, machineSettings) {
                 ${wasteHTML}
             </div>
             <div class="pattern-stats">
-                Total Width: ${patternObj.pattern.reduce((a, b) => a + b, 0)}mm | 
+                Total Width: ${patternObj.pattern.reduce((a, b) => a + b, 0)}mm |
                 Jumbo: ${jumboWidth}mm
             </div>
         </div>
@@ -99,6 +103,99 @@ function createEnhancedPatternElement(patternObj, index, machineSettings) {
     return patternDiv;
 }
 
+// Initialize click events for all section visuals
+function initializeSectionClickEvents() {
+    const allSections = document.querySelectorAll('.section-visual');
+
+    allSections.forEach(section => {
+        section.addEventListener('click', function (e) {
+            e.stopPropagation();
+            const customerOrder = this.getAttribute('data-customer-order');
+            if (customerOrder) {
+                toggleOrderSelection(customerOrder);
+            }
+        });
+
+        // Add cursor pointer to indicate clickability
+        section.style.cursor = 'pointer';
+    });
+}
+
+// Toggle selection for all rolls of the same customer order
+function toggleOrderSelection(customerOrder) {
+    const orderWidth = parseFloat(customerOrder);
+
+    if (selectedOrders.has(orderWidth)) {
+        // Deselect all rolls of this order
+        selectedOrders.delete(orderWidth);
+        deselectAllRollsForOrder(customerOrder);
+    } else {
+        // Select all rolls of this order
+        selectedOrders.add(orderWidth);
+        selectAllRollsForOrder(customerOrder);
+    }
+
+    updateSelectionCounter();
+    console.log('Selected orders:', Array.from(selectedOrders));
+}
+
+// Select all rolls for a specific customer order
+function selectAllRollsForOrder(customerOrder) {
+    const allSections = document.querySelectorAll(`.section-visual[data-customer-order="${customerOrder}"]`);
+
+    allSections.forEach(section => {
+        section.classList.add('selected');
+        section.style.boxShadow = '0 0 0 2px #27ae60, 0 0 10px rgba(39, 174, 96, 0.5)';
+        section.style.transform = 'scale(1.05)';
+        section.style.zIndex = '10';
+        section.style.border = '2px solid #27ae60';
+    });
+
+    console.log(`✅ Selected ${allSections.length} rolls for order ${customerOrder}mm`);
+}
+
+// Deselect all rolls for a specific customer order
+function deselectAllRollsForOrder(customerOrder) {
+    const allSections = document.querySelectorAll(`.section-visual[data-customer-order="${customerOrder}"]`);
+
+    allSections.forEach(section => {
+        section.classList.remove('selected');
+        section.style.boxShadow = '';
+        section.style.transform = '';
+        section.style.zIndex = '';
+        section.style.border = '1px solid rgba(255, 255, 255, 0.3)';
+    });
+
+    console.log(`❌ Deselected ${allSections.length} rolls for order ${customerOrder}mm`);
+}
+
+// Add color legend function
+function addColorLegend() {
+    if (orderColorMap.size === 0) return;
+
+    const container = document.getElementById('patternsContainer');
+    const legend = document.createElement('div');
+    legend.className = 'order-legend';
+    legend.innerHTML = '<strong>Order Colors:</strong>';
+
+    // Get unique widths and sort them
+    const uniqueWidths = Array.from(orderColorMap.keys()).sort((a, b) => a - b);
+
+    uniqueWidths.forEach(width => {
+        const colorClass = orderColorMap.get(width);
+        const legendItem = document.createElement('div');
+        legendItem.className = 'legend-item';
+        legendItem.innerHTML = `
+            <div class="legend-color ${colorClass}"></div>
+            <span>${width}mm</span>
+        `;
+        legend.appendChild(legendItem);
+    });
+
+    container.appendChild(legend);
+}
+
+// Get color for width
 function getColorForWidth(width) {
     if (!orderColorMap.has(width)) {
         // Assign a consistent solid blue shade based on width
@@ -127,36 +224,30 @@ String.prototype.hashCode = function () {
     return hash;
 };
 
-function addColorLegend() {
-    if (orderColorMap.size === 0) return;
+// Update selection counter
+function updateSelectionCounter() {
+    const counterElement = document.getElementById('selectedOrdersCount');
+    if (counterElement) {
+        counterElement.textContent = `${selectedOrders.size} order${selectedOrders.size !== 1 ? 's' : ''}`;
+    }
+}
 
-    const container = document.getElementById('patternsContainer');
-    const legend = document.createElement('div');
-    legend.className = 'order-legend';
-    legend.innerHTML = '<strong>Order Colors:</strong>';
-
-    // Get unique widths and sort them
-    const uniqueWidths = Array.from(orderColorMap.keys()).sort((a, b) => a - b);
-
-    uniqueWidths.forEach(width => {
-        const colorClass = orderColorMap.get(width);
-        const legendItem = document.createElement('div');
-        legendItem.className = 'legend-item';
-        legendItem.innerHTML = `
-            <div class="legend-color ${colorClass}"></div>
-            <span>${width}mm</span>
-        `;
-        legend.appendChild(legendItem);
+// Clear all selections
+function clearAllSelections() {
+    selectedOrders.clear();
+    const allSections = document.querySelectorAll('.section-visual');
+    allSections.forEach(section => {
+        section.classList.remove('selected');
+        section.style.boxShadow = '';
+        section.style.transform = '';
+        section.style.zIndex = '';
+        section.style.border = '1px solid rgba(255, 255, 255, 0.3)';
     });
-
-    container.appendChild(legend);
+    updateSelectionCounter();
+    console.log('🧹 Cleared all selections');
 }
 
-function calculatePatternEfficiency(pattern, jumboWidth) {
-    const usedWidth = jumboWidth - pattern.waste;
-    return ((usedWidth / jumboWidth) * 100).toFixed(1);
-}
-
+// Update summary function (make sure this exists)
 function updateSummary(totalReels, totalWaste, totalUsed) {
     const totalReelsElement = document.getElementById('totalReels');
     const totalWasteElement = document.getElementById('totalWaste');
@@ -167,6 +258,7 @@ function updateSummary(totalReels, totalWaste, totalUsed) {
 
     const totalArea = totalUsed + totalWaste;
     const efficiency = totalArea > 0 ? ((totalUsed / totalArea) * 100).toFixed(2) : 0;
+
     if (efficiencyElement) efficiencyElement.textContent = `${efficiency}%`;
 
     console.log('📊 Summary updated:', { totalReels, totalWaste: Math.round(totalWaste), efficiency });
@@ -175,4 +267,6 @@ function updateSummary(totalReels, totalWaste, totalUsed) {
 // Make functions globally available
 window.displayPatterns = displayPatterns;
 window.getColorForWidth = getColorForWidth;
-// 
+window.clearAllSelections = clearAllSelections;
+window.addColorLegend = addColorLegend;
+window.updateSummary = updateSummary;

@@ -111,9 +111,16 @@
             </section>
 
             <!-- Right Panel - Visualization -->
+            <!-- In the Visualization Panel section of index.html -->
+            <!-- Right Panel - Visualization -->
             <section class="panel visualization-panel">
                 <div class="section-card">
-                    <h3>Cutting Patterns</h3>
+                    <div class="table-header">
+                        <h3>Cutting Patterns</h3>
+                        <div class="table-actions">
+                            <button onclick="clearAllSelections()" class="btn-clear-selection">Clear Selection</button>
+                        </div>
+                    </div>
                     <div id="patternsContainer" class="patterns-container">
                         <p class="no-orders-message">Add orders and click Optimize to generate cutting patterns.</p>
                     </div>
@@ -130,6 +137,11 @@
                             <span class="label">Efficiency:</span>
                             <span id="efficiency" class="value">0%</span>
                         </div>
+                        <!-- Add selection info -->
+                        <div class="summary-item">
+                            <span class="label">Selected Orders:</span>
+                            <span id="selectedOrdersCount" class="value">0</span>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -142,10 +154,10 @@
     <script src="scripts/cutting-algorithm.js"></script>
     <script src="scripts/quantity-aware-optimizer.js"></script> <!-- Add this line -->
     <script src="scripts/visualization.js"></script>
-    <script src="scripts/app.js"></script>
     <!-- Add this to your index.html after other scripts. -->
     <script src="scripts/cutting-algorithm.js"></script>
     <script src="scripts/ortools-optimizer.js"></script>
+    <script src="scripts/app.js"></script>
 </body>
 
 </html>
