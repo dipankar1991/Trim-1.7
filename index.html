@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paper Trim Optimization System</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/components.css">
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <header class="app-header">
+            <h1>Paper Trim Optimization System</h1>
+        </header>
+
+        <main class="main-content">
+            <!-- Left Panel - Input Sections -->
+            <section class="panel input-panel">
+                <div class="section-card">
+                    <h3>Customer Requirements</h3>
+                    <form id="customerForm" class="input-form">
+                        <div class="form-group">
+                            <label for="gsmInput">GSM (g/m²):</label>
+                            <input type="number" id="gsmInput" step="0.1" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="caliperInput">Caliper (mm):</label>
+                            <input type="number" id="caliperInput" step="0.01" min="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="coreOdInput">Core OD (mm):</label>
+                            <input type="number" id="coreOdInput" step="1" min="50" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="rollOdInput">Roll OD (mm):</label>
+                            <input type="number" id="rollOdInput" step="1" min="100" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="widthInput">Width (mm):</label>
+                            <input type="number" id="widthInput" step="1" min="100" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="quantityInput">Order Quantity:</label>
+                            <input type="number" id="quantityInput" step="1" min="1" required>
+                        </div>
+                        <div class="optimization-controls">
+                            <button type="submit" class="btn-primary">Add Order</button>
+                            <button type="button" onclick="app.runOptimization()" class="btn-optimize">Optimize</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="section-card">
+                    <h3>Machine Restrictions</h3>
+                    <form id="machineForm" class="input-form">
+                        <div class="form-group">
+                            <label for="minJumboWidth">Min Jumbo Width (mm):</label>
+                            <input type="number" id="minJumboWidth" value="1000" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="maxJumboWidth">Max Jumbo Width (mm):</label>
+                            <input type="number" id="maxJumboWidth" value="3000" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="maxSections">Max Sections:</label>
+                            <input type="number" id="maxSections" value="8" min="1" max="20" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="minTrimWidth">Min Trim (mm):</label>
+                            <input type="number" id="minTrimWidth" value="10" step="1" required>
+                        </div>
+                        <button type="submit" class="btn-secondary">Save Settings</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Center Panel - Orders Table -->
+            <section class="panel table-panel">
+                <div class="section-card">
+                    <div class="table-header">
+                        <h3>Customer Orders</h3>
+                        <div class="table-actions">
+                            <button onclick="app.clearAllOrders()" class="btn-danger">Clear All</button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table id="ordersTable" class="orders-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>GSM</th>
+                                    <th>Width</th>
+                                    <th>Core</th>
+                                    <th>Roll</th>
+                                    <th>Qty</th>
+                                    <th>Density</th>
+                                    <th>Length</th>
+                                    <th>Weight</th>
+                                    <th>Packs</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTableBody">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Panel - Visualization -->
+            <section class="panel visualization-panel">
+                <div class="section-card">
+                    <h3>Cutting Patterns</h3>
+                    <div id="patternsContainer" class="patterns-container">
+                        <p class="no-orders-message">Add orders and click Optimize to generate cutting patterns.</p>
+                    </div>
+                    <div id="summaryPanel" class="summary-panel">
+                        <div class="summary-item">
+                            <span class="label">Total Jumbo Reels:</span>
+                            <span id="totalReels" class="value">0</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Total Waste:</span>
+                            <span id="totalWaste" class="value">0 mm</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Efficiency:</span>
+                            <span id="efficiency" class="value">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="scripts/utils/helpers.js"></script>
+    <script src="scripts/utils/validators.js"></script>
+    <script src="scripts/calculations.js"></script>
+    <script src="scripts/cutting-algorithm.js"></script>
+    <script src="scripts/quantity-aware-optimizer.js"></script> <!-- Add this line -->
+    <script src="scripts/visualization.js"></script>
+    <script src="scripts/app.js"></script>
+    <!-- Add this to your index.html after other scripts. -->
+    <script src="scripts/cutting-algorithm.js"></script>
+    <script src="scripts/ortools-optimizer.js"></script>
+</body>
+
+</html>
+<!--  -->
