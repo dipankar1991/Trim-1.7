@@ -1074,6 +1074,7 @@ body {
     border-radius: 2px;
     border: 1px solid rgba(0, 0, 0, 0.05);
 }
+
 /*  */
 
 /* Add these styles to your existing CSS */
@@ -1193,4 +1194,90 @@ body {
     height: 12px;
     border-radius: 2px;
     border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Selection styles for rolls - ENTIRE ROLL TURNS GREEN */
+.section-visual.selected {
+    background-color: #27ae60 !important;
+    background-image: none !important;
+    color: white !important;
+    font-weight: bold !important;
+    box-shadow: 0 0 10px rgba(39, 174, 96, 0.7) !important;
+    transform: scale(1.05) !important;
+    z-index: 10 !important;
+    border: 2px solid #1e8449 !important;
+    transition: all 0.3s ease !important;
+}
+
+/* Enhanced hover effects */
+.section-visual {
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+}
+
+.section-visual:hover {
+    filter: brightness(1.15) !important;
+    transform: scale(1.03) !important;
+    z-index: 5 !important;
+}
+
+/* Selection controls */
+.btn-clear-selection {
+    background: #95a5a6;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.btn-clear-selection:hover {
+    background: #7f8c8d;
+}
+
+/* Order legend styles */
+.order-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border: 1px solid #e9ecef;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.7rem;
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Make sure the green color overrides all other colors */
+.section-blue-1.selected,
+.section-blue-2.selected,
+.section-blue-3.selected,
+.section-blue-4.selected,
+.section-blue-5.selected,
+.section-blue-6.selected,
+.section-blue-7.selected,
+.section-blue-8.selected,
+.section-blue-9.selected,
+.section-blue-10.selected,
+.section-blue-11.selected,
+.section-blue-12.selected,
+.section-blue-13.selected,
+.section-blue-14.selected,
+.section-blue-15.selected {
+    background-color: #27ae60 !important;
+    background-image: none !important;
 }

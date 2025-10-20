@@ -1,6 +1,6 @@
 // Enhanced visualization with solid colors and consistent ordering AND roll selection
 let orderColorMap = new Map();
-let selectedOrders = new Set(); // Track selected customer orders
+let selectedOrder = null; // Track single selected customer order
 
 function displayPatterns(patterns, machineSettings) {
     console.log('🎨 Displaying patterns with solid colors:', patterns);
@@ -65,7 +65,7 @@ function createEnhancedPatternElement(patternObj, index, machineSettings) {
     const sectionsHTML = patternObj.pattern.map((width, sectionIndex) => {
         const percentage = (width / jumboWidth) * 100;
         const colorClass = getColorForWidth(width);
-        const isSelected = selectedOrders.has(width) ? 'selected' : '';
+        const isSelected = selectedOrder === width ? 'selected' : '';
 
         return `
             <div class="section-visual ${colorClass} ${isSelected}"
@@ -125,48 +125,63 @@ function initializeSectionClickEvents() {
 function toggleOrderSelection(customerOrder) {
     const orderWidth = parseFloat(customerOrder);
 
-    if (selectedOrders.has(orderWidth)) {
-        // Deselect all rolls of this order
-        selectedOrders.delete(orderWidth);
-        deselectAllRollsForOrder(customerOrder);
+    if (selectedOrder === orderWidth) {
+        // Deselect if clicking the same order
+        selectedOrder = null;
+        deselectAllRolls();
     } else {
-        // Select all rolls of this order
-        selectedOrders.add(orderWidth);
+        // Select new order (automatically deselects previous)
+        selectedOrder = orderWidth;
         selectAllRollsForOrder(customerOrder);
     }
 
     updateSelectionCounter();
-    console.log('Selected orders:', Array.from(selectedOrders));
+    console.log('Selected order:', selectedOrder);
 }
 
 // Select all rolls for a specific customer order
 function selectAllRollsForOrder(customerOrder) {
+    // First deselect any currently selected rolls
+    deselectAllRolls();
+
+    // Then select all rolls for the new order
     const allSections = document.querySelectorAll(`.section-visual[data-customer-order="${customerOrder}"]`);
 
     allSections.forEach(section => {
         section.classList.add('selected');
-        section.style.boxShadow = '0 0 0 2px #27ae60, 0 0 10px rgba(39, 174, 96, 0.5)';
+        // Remove original color and apply green background
+        section.style.backgroundColor = '#27ae60';
+        section.style.backgroundImage = 'none';
+        section.style.color = 'white';
+        section.style.fontWeight = 'bold';
+        section.style.boxShadow = '0 0 10px rgba(39, 174, 96, 0.7)';
         section.style.transform = 'scale(1.05)';
         section.style.zIndex = '10';
-        section.style.border = '2px solid #27ae60';
+        section.style.border = '2px solid #1e8449';
     });
 
     console.log(`✅ Selected ${allSections.length} rolls for order ${customerOrder}mm`);
 }
 
-// Deselect all rolls for a specific customer order
-function deselectAllRollsForOrder(customerOrder) {
-    const allSections = document.querySelectorAll(`.section-visual[data-customer-order="${customerOrder}"]`);
+// Deselect all rolls
+function deselectAllRolls() {
+    const allSections = document.querySelectorAll('.section-visual');
 
     allSections.forEach(section => {
         section.classList.remove('selected');
+        // Reset to original colors
+        const originalColorClass = Array.from(section.classList).find(cls => cls.startsWith('section-blue-'));
+        section.style.backgroundColor = '';
+        section.style.backgroundImage = '';
+        section.style.color = 'white';
+        section.style.fontWeight = '';
         section.style.boxShadow = '';
         section.style.transform = '';
         section.style.zIndex = '';
         section.style.border = '1px solid rgba(255, 255, 255, 0.3)';
     });
 
-    console.log(`❌ Deselected ${allSections.length} rolls for order ${customerOrder}mm`);
+    console.log('❌ Deselected all rolls');
 }
 
 // Add color legend function
@@ -228,26 +243,23 @@ String.prototype.hashCode = function () {
 function updateSelectionCounter() {
     const counterElement = document.getElementById('selectedOrdersCount');
     if (counterElement) {
-        counterElement.textContent = `${selectedOrders.size} order${selectedOrders.size !== 1 ? 's' : ''}`;
+        if (selectedOrder) {
+            counterElement.textContent = `${selectedOrder}mm`;
+        } else {
+            counterElement.textContent = 'None';
+        }
     }
 }
 
 // Clear all selections
 function clearAllSelections() {
-    selectedOrders.clear();
-    const allSections = document.querySelectorAll('.section-visual');
-    allSections.forEach(section => {
-        section.classList.remove('selected');
-        section.style.boxShadow = '';
-        section.style.transform = '';
-        section.style.zIndex = '';
-        section.style.border = '1px solid rgba(255, 255, 255, 0.3)';
-    });
+    selectedOrder = null;
+    deselectAllRolls();
     updateSelectionCounter();
     console.log('🧹 Cleared all selections');
 }
 
-// Update summary function (make sure this exists)
+// Update summary function
 function updateSummary(totalReels, totalWaste, totalUsed) {
     const totalReelsElement = document.getElementById('totalReels');
     const totalWasteElement = document.getElementById('totalWaste');
