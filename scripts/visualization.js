@@ -129,10 +129,12 @@ function toggleOrderSelection(customerOrder) {
         // Deselect if clicking the same order
         selectedOrder = null;
         deselectAllRolls();
+        deselectCustomerOrderRow();
     } else {
         // Select new order (automatically deselects previous)
         selectedOrder = orderWidth;
         selectAllRollsForOrder(customerOrder);
+        selectCustomerOrderRow(customerOrder);
     }
 
     updateSelectionCounter();
@@ -182,6 +184,70 @@ function deselectAllRolls() {
     });
 
     console.log('❌ Deselected all rolls');
+}
+
+// NEW: Select customer order row in the table
+function selectCustomerOrderRow(customerOrderWidth) {
+    // First deselect any previously selected row
+    deselectCustomerOrderRow();
+
+    // Find the row that matches the customer order width
+    const orderWidth = parseFloat(customerOrderWidth);
+    const tableRows = document.querySelectorAll('#ordersTableBody tr');
+
+    tableRows.forEach(row => {
+        // Get the width from the 3rd column (index 2) since columns are: ID, GSM, Width, Core, Roll, Qty, etc.
+        const widthCell = row.cells[2]; // 3rd column is Width
+        if (widthCell) {
+            const rowWidth = parseFloat(widthCell.textContent);
+            if (rowWidth === orderWidth) {
+                row.classList.add('selected');
+                row.style.backgroundColor = '#27ae60';
+                row.style.color = 'white';
+                row.style.fontWeight = 'bold';
+
+                // Scroll the row into view if needed
+                row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                console.log(`✅ Highlighted customer order row for ${orderWidth}mm`);
+                return;
+            }
+        }
+    });
+}
+
+// NEW: Deselect customer order row
+function deselectCustomerOrderRow() {
+    const tableRows = document.querySelectorAll('#ordersTableBody tr');
+
+    tableRows.forEach(row => {
+        row.classList.remove('selected');
+        row.style.backgroundColor = '';
+        row.style.color = '';
+        row.style.fontWeight = '';
+    });
+
+    console.log('❌ Deselected all customer order rows');
+}
+
+// NEW: Add click events to customer order rows to select corresponding rolls
+function initializeCustomerOrderRowClickEvents() {
+    const tableRows = document.querySelectorAll('#ordersTableBody tr');
+
+    tableRows.forEach(row => {
+        row.addEventListener('click', function () {
+            const widthCell = this.cells[2]; // 3rd column is Width
+            if (widthCell) {
+                const customerOrderWidth = widthCell.textContent;
+                if (customerOrderWidth && !isNaN(customerOrderWidth)) {
+                    toggleOrderSelection(customerOrderWidth);
+                }
+            }
+        });
+
+        // Add cursor pointer to indicate clickability
+        row.style.cursor = 'pointer';
+    });
 }
 
 // Add color legend function
@@ -255,6 +321,7 @@ function updateSelectionCounter() {
 function clearAllSelections() {
     selectedOrder = null;
     deselectAllRolls();
+    deselectCustomerOrderRow();
     updateSelectionCounter();
     console.log('🧹 Cleared all selections');
 }
@@ -282,3 +349,4 @@ window.getColorForWidth = getColorForWidth;
 window.clearAllSelections = clearAllSelections;
 window.addColorLegend = addColorLegend;
 window.updateSummary = updateSummary;
+window.initializeCustomerOrderRowClickEvents = initializeCustomerOrderRowClickEvents;

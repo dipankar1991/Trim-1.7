@@ -243,7 +243,12 @@ class TrimOptimizationApp {
             tableBody.appendChild(row);
         });
 
-        console.log('Orders table updated with', this.customerOrders.length, 'orders'); // Debug
+        console.log('Orders table updated with', this.customerOrders.length, 'orders');
+
+        // NEW: Initialize click events for customer order rows
+        if (typeof initializeCustomerOrderRowClickEvents === 'function') {
+            initializeCustomerOrderRowClickEvents();
+        }
     }
 
     createOrderTableRow(order) {

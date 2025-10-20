@@ -1281,3 +1281,35 @@ body {
     background-color: #27ae60 !important;
     background-image: none !important;
 }
+
+/* Customer order table row selection */
+.orders-table tbody tr.selected {
+    background-color: #27ae60 !important;
+    color: white !important;
+    font-weight: bold !important;
+}
+
+.orders-table tbody tr {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.orders-table tbody tr:hover {
+    background-color: #f8f9fa !important;
+}
+
+.orders-table tbody tr.selected:hover {
+    background-color: #219653 !important;
+    color: white !important;
+}
+
+/* Make sure the action button in selected rows is visible */
+.orders-table tbody tr.selected .btn-danger {
+    background-color: #e74c3c;
+    color: white;
+    border: 1px solid #c0392b;
+}
+
+.orders-table tbody tr.selected .btn-danger:hover {
+    background-color: #c0392b;
+}
